@@ -155,8 +155,8 @@ NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
 
 @interface AFStreamingMultipartFormData : NSObject <AFMultipartFormData>
 - (instancetype)initWithURLRequest:(NSMutableURLRequest *)urlRequest
-                    stringEncoding:(NSStringEncoding)encoding;
-
+                    stringEncoding:(NSStringEncoding)encoding
+                    contentType:(NSString*)contentType;
 - (NSMutableURLRequest *)requestByFinalizingMultipartFormData;
 @end
 
@@ -308,12 +308,25 @@ NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
                               constructingBodyWithBlock:(void (^)(id <AFMultipartFormData> formData))block
                                                   error:(NSError *__autoreleasing *)error
 {
+    return [self multipartFormRequestWithMethod:method URLString:URLString
+                      contentType:@"multipart/form-data" parameters:parameters
+                      constructingBodyWithBlock:block error:error];
+}
+
+
+- (NSMutableURLRequest *)multipartFormRequestWithMethod:(NSString *)method
+                                              URLString:(NSString *)URLString
+                                            contentType:(NSString *)contentType
+                                             parameters:(NSDictionary *)parameters
+                              constructingBodyWithBlock:(void (^)(id <AFMultipartFormData> formData))block
+                                                  error:(NSError *__autoreleasing *)error
+{
     NSParameterAssert(method);
     NSParameterAssert(![method isEqualToString:@"GET"] && ![method isEqualToString:@"HEAD"]);
 
     NSMutableURLRequest *mutableRequest = [self requestWithMethod:method URLString:URLString parameters:nil error:error];
 
-    __block AFStreamingMultipartFormData *formData = [[AFStreamingMultipartFormData alloc] initWithURLRequest:mutableRequest stringEncoding:NSUTF8StringEncoding];
+    __block AFStreamingMultipartFormData *formData = [[AFStreamingMultipartFormData alloc] initWithURLRequest:mutableRequest stringEncoding:NSUTF8StringEncoding contentType:contentType];
 
     if (parameters) {
         for (AFQueryStringPair *pair in AFQueryStringPairsFromDictionary(parameters)) {
@@ -545,12 +558,14 @@ NSTimeInterval const kAFUploadStream3GSuggestedDelay = 0.2;
 @property (readwrite, nonatomic, assign) NSStringEncoding stringEncoding;
 @property (readwrite, nonatomic, copy) NSString *boundary;
 @property (readwrite, nonatomic, strong) AFMultipartBodyStream *bodyStream;
+@property (readwrite, nonatomic, copy) NSString *contentType;
 @end
 
 @implementation AFStreamingMultipartFormData
 
 - (id)initWithURLRequest:(NSMutableURLRequest *)urlRequest
           stringEncoding:(NSStringEncoding)encoding
+          contentType:(NSString*)contentType
 {
     self = [super init];
     if (!self) {
@@ -561,6 +576,7 @@ NSTimeInterval const kAFUploadStream3GSuggestedDelay = 0.2;
     self.stringEncoding = encoding;
     self.boundary = AFCreateMultipartFormBoundary();
     self.bodyStream = [[AFMultipartBodyStream alloc] initWithStringEncoding:encoding];
+    self.contentType=contentType;
 
     return self;
 }
@@ -708,7 +724,7 @@ NSTimeInterval const kAFUploadStream3GSuggestedDelay = 0.2;
     [self.bodyStream setInitialAndFinalBoundaries];
     [self.request setHTTPBodyStream:self.bodyStream];
 
-    [self.request setValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", self.boundary] forHTTPHeaderField:@"Content-Type"];
+    [self.request setValue:[NSString stringWithFormat:@"%@; boundary=%@", self.contentType, self.boundary] forHTTPHeaderField:@"Content-Type"];
     [self.request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[self.bodyStream contentLength]] forHTTPHeaderField:@"Content-Length"];
 
     return self.request;

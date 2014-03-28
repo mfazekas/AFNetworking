@@ -238,6 +238,27 @@ forHTTPHeaderField:(NSString *)field;
                                                   error:(NSError * __autoreleasing *)error;
 
 /**
+ Creates an `NSMutableURLRequest` object with the specified HTTP method and URLString, and constructs a `multipart/form-data` HTTP body, using the specified parameters and multipart form data block. See http://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.2
+ 
+ Multipart form requests are automatically streamed, reading files directly from disk along with in-memory data in a single HTTP body. The resulting `NSMutableURLRequest` object has an `HTTPBodyStream` property, so refrain from setting `HTTPBodyStream` or `HTTPBody` on this request object, as it will clear out the multipart form body stream.
+ 
+ @param method The HTTP method for the request. This parameter must not be `GET` or `HEAD`, or `nil`.
+ @param URLString The URL string used to create the request URL.
+ @param contentType The Content-Type string, Typically `multipart/form-data` or `multipart/related`.
+ @param parameters The parameters to be encoded and set in the request HTTP body.
+ @param block A block that takes a single argument and appends data to the HTTP body. The block argument is an object adopting the `AFMultipartFormData` protocol.
+ @param error The error that occured while constructing the request.
+ 
+ @return An `NSMutableURLRequest` object
+ */
+- (NSMutableURLRequest *)multipartFormRequestWithMethod:(NSString *)method
+                                              URLString:(NSString *)URLString
+                                            contentType:(NSString *)contentType
+                                             parameters:(NSDictionary *)parameters
+                              constructingBodyWithBlock:(void (^)(id <AFMultipartFormData> formData))block
+                                                  error:(NSError * __autoreleasing *)error;
+
+/**
  Creates an `NSMutableURLRequest` by removing the `HTTPBodyStream` from a request, and asynchronously writing its contents into the specified file, invoking the completion handler when finished.
  
  @param request The multipart form request.

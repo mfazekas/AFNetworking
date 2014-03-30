@@ -238,7 +238,7 @@ forHTTPHeaderField:(NSString *)field;
                                                   error:(NSError * __autoreleasing *)error;
 
 /**
- Creates an `NSMutableURLRequest` object with the specified HTTP method and URLString, and constructs a `multipart/form-data` HTTP body, using the specified parameters and multipart form data block. See http://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.2
+ Creates an `NSMutableURLRequest` object with the specified HTTP method and URLString, and constructs a `multipart/form-data` or `multipar/related` HTTP body, using the specified parameters and multipart form data block. See http://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.2
  
  Multipart form requests are automatically streamed, reading files directly from disk along with in-memory data in a single HTTP body. The resulting `NSMutableURLRequest` object has an `HTTPBodyStream` property, so refrain from setting `HTTPBodyStream` or `HTTPBody` on this request object, as it will clear out the multipart form body stream.
  
@@ -251,7 +251,7 @@ forHTTPHeaderField:(NSString *)field;
  
  @return An `NSMutableURLRequest` object
  */
-- (NSMutableURLRequest *)multipartFormRequestWithMethod:(NSString *)method
+- (NSMutableURLRequest *)multipartRequestWithMethod:(NSString *)method
                                               URLString:(NSString *)URLString
                                             contentType:(NSString *)contentType
                                              parameters:(NSDictionary *)parameters

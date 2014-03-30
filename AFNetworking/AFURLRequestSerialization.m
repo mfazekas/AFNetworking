@@ -308,7 +308,7 @@ NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
                               constructingBodyWithBlock:(void (^)(id <AFMultipartFormData> formData))block
                                                   error:(NSError *__autoreleasing *)error
 {
-    return [self multipartFormRequestWithMethod:method URLString:URLString
+    return [self multipartRequestWithMethod:method URLString:URLString
                       contentType:@"multipart/form-data" parameters:parameters
                       constructingBodyWithBlock:block error:error];
 }
